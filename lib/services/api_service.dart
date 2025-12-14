@@ -1,23 +1,24 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// Servicio HTTP base para todas las peticiones a la API
-/// Incluye automáticamente la API_KEY en cada request
 class ApiService {
-  // URL base de la API
+  // URL base de la API - desde constantes de compilación
   static String get baseUrl {
-    final url = dotenv.env['RENDER_URL'] ?? 'localhost:3000/api/v1';
-    // Asegurarse de que tenga el protocolo correcto
-    if (url.startsWith('localhost')) {
-      return 'http://$url';
-    }
-    return url.startsWith('http') ? url : 'https://$url';
+    const apiUrl = String.fromEnvironment(
+      'API_URL',
+      defaultValue: 'http://localhost:3000/api/v1',
+    );
+    return apiUrl;
   }
 
-  // API_KEY para autenticación
+  // API_KEY para autenticación - desde constantes de compilación
   static String get apiKey {
-    return dotenv.env['API_KEY'] ?? '';
+    const key = String.fromEnvironment(
+      'API_KEY',
+      defaultValue: '', // Vacío por defecto para seguridad
+    );
+    return key;
   }
 
   // Headers comunes para todas las peticiones
@@ -30,11 +31,11 @@ class ApiService {
   static Future<http.Response> get(String endpoint) async {
     try {
       final url = Uri.parse('$baseUrl$endpoint');
-      print('🌐 GET: $url'); // Debug
+      print('🌐 GET: $url');
       
       final response = await http.get(url, headers: headers);
       
-      print('📥 Response: ${response.statusCode}'); // Debug
+      print('📥 Response: ${response.statusCode}');
       return response;
     } catch (e) {
       print('❌ Error en GET: $e');
@@ -46,8 +47,8 @@ class ApiService {
   static Future<http.Response> post(String endpoint, dynamic body) async {
     try {
       final url = Uri.parse('$baseUrl$endpoint');
-      print('🌐 POST: $url'); // Debug
-      print('📤 Body: ${jsonEncode(body)}'); // Debug
+      print('🌐 POST: $url');
+      print('📤 Body: ${jsonEncode(body)}');
       
       final response = await http.post(
         url,
@@ -55,7 +56,7 @@ class ApiService {
         body: jsonEncode(body),
       );
       
-      print('📥 Response: ${response.statusCode}'); // Debug
+      print('📥 Response: ${response.statusCode}');
       return response;
     } catch (e) {
       print('❌ Error en POST: $e');
@@ -67,8 +68,8 @@ class ApiService {
   static Future<http.Response> put(String endpoint, dynamic body) async {
     try {
       final url = Uri.parse('$baseUrl$endpoint');
-      print('🌐 PUT: $url'); // Debug
-      print('📤 Body: ${jsonEncode(body)}'); // Debug
+      print('🌐 PUT: $url');
+      print('📤 Body: ${jsonEncode(body)}');
       
       final response = await http.put(
         url,
@@ -76,7 +77,7 @@ class ApiService {
         body: jsonEncode(body),
       );
       
-      print('📥 Response: ${response.statusCode}'); // Debug
+      print('📥 Response: ${response.statusCode}');
       return response;
     } catch (e) {
       print('❌ Error en PUT: $e');
@@ -88,11 +89,11 @@ class ApiService {
   static Future<http.Response> delete(String endpoint) async {
     try {
       final url = Uri.parse('$baseUrl$endpoint');
-      print('🌐 DELETE: $url'); // Debug
+      print('🌐 DELETE: $url');
       
       final response = await http.delete(url, headers: headers);
       
-      print('📥 Response: ${response.statusCode}'); // Debug
+      print('📥 Response: ${response.statusCode}');
       return response;
     } catch (e) {
       print('❌ Error en DELETE: $e');

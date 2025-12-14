@@ -8,7 +8,7 @@ class SeriesSearchDelegate extends SearchDelegate {
   List<Widget> buildActions(BuildContext context) {
     return [
       IconButton(
-        icon: Icon(Icons.clear),
+        icon: const Icon(Icons.clear),
         onPressed: () {
           query = '';
         },
@@ -35,11 +35,11 @@ class SeriesSearchDelegate extends SearchDelegate {
       future: SeriesService.buscarSeries(query),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(child: Text('No series found'));
+          return const Center(child: Text('No series found'));
         } else {
           List<Series> series = snapshot.data!;
           return ListView.builder(

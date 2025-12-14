@@ -7,11 +7,11 @@ import '../../services/actor_service.dart';
 class ActorSearchResultsScreen extends StatelessWidget {
   final String query;
 
-  const ActorSearchResultsScreen({Key? key, required this.query}) : super(key: key);
+  const ActorSearchResultsScreen({super.key, required this.query});
 
   @override
   Widget build(BuildContext context) {
-    final ActorService _actorService = ActorService();
+    final ActorService actorService = ActorService();
 
     return Scaffold(
       appBar: CustomAppBar(
@@ -24,7 +24,7 @@ class ActorSearchResultsScreen extends StatelessWidget {
         ),
       ),
       body: FutureBuilder<List<Actor>>(
-        future: _actorService.searchActors(query),
+        future: actorService.searchActors(query),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());

@@ -76,11 +76,11 @@ class _SeriesScreenState extends State<SeriesScreen> {
             future: futureSeries,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
+                return const Center(child: CircularProgressIndicator());
               } else if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}'));
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Center(child: Text('No series found'));
+                return const Center(child: Text('No series found'));
               } else {
                 Series featuredSeries = snapshot.data!.firstWhere((series) => series.name == "The Office", orElse: () => snapshot.data![0]);
                 return GestureDetector(
@@ -96,7 +96,7 @@ class _SeriesScreenState extends State<SeriesScreen> {
                       ),
                     );
                   },
-                  child: Container(
+                  child: SizedBox(
                     height: 250,
                     width: double.infinity,
                     child: Image.network(
@@ -115,7 +115,7 @@ class _SeriesScreenState extends State<SeriesScreen> {
               itemCount: seriesList.length + (isLoading ? 1 : 0),
               itemBuilder: (context, index) {
                 if (index == seriesList.length) {
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 }
                 return GestureDetector(
                   onTap: () {
