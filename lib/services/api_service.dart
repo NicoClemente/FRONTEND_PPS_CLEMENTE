@@ -3,22 +3,14 @@ import 'package:http/http.dart' as http;
 
 /// Servicio HTTP base para todas las peticiones a la API
 class ApiService {
-  // URL base de la API - desde constantes de compilación
+  // URL base de la API - HARDCODED para producción
   static String get baseUrl {
-    const apiUrl = String.fromEnvironment(
-      'API_URL',
-      defaultValue: 'http://localhost:3000/api/v1',
-    );
-    return apiUrl;
+    return 'https://api-pps-clemente.onrender.com/api/v1';
   }
 
-  // API_KEY para autenticación - desde constantes de compilación
+  // API_KEY para autenticación - HARDCODED para producción
   static String get apiKey {
-    const key = String.fromEnvironment(
-      'API_KEY',
-      defaultValue: '', // Vacío por defecto para seguridad
-    );
-    return key;
+    return 'flixfinder_api_key_2024_nicolas_pps';
   }
 
   // Headers comunes para todas las peticiones
