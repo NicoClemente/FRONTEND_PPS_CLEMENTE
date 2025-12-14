@@ -1,45 +1,12 @@
 {
   "version": 2,
-  "public": true,
-  "github": {
-    "silent": true
-  },
-  "buildCommand": "chmod +x build.sh && ./build.sh",
+  "buildCommand": "echo 'Build already done locally'",
   "outputDirectory": "build/web",
-  "installCommand": "flutter pub get",
-  "env": {
-    "API_URL": "@api_url",
-    "API_KEY": "@api_key"
-  },
-  "build": {
-    "env": {
-      "API_URL": "@api_url",
-      "API_KEY": "@api_key"
-    }
-  },
+  "installCommand": "echo 'No install needed'",
   "rewrites": [
     {
       "source": "/(.*)",
       "destination": "/index.html"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET, POST, PUT, DELETE, OPTIONS"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "X-Requested-With, Content-Type, Accept"
-        }
-      ]
     }
   ]
 }
