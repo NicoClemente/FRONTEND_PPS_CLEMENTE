@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 class ApiService {
   // URL base de la API - HARDCODED para producción
   static String get baseUrl {
-    return 'https://api-pps-clemente.onrender.com/api/v1';
+    return 'api-pps-clemente.onrender.com/api/v1';
   }
 
   // API_KEY para autenticación - HARDCODED para producción
