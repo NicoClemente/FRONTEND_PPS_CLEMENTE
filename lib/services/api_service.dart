@@ -115,15 +115,21 @@ class ApiService {
     }
   }
 
-  static Future<http.Response> delete(String endpoint) async {
+  static Future<http.Response> delete(String endpoint, {dynamic body}) async {
     final url = '$baseUrl$endpoint';
     print('🌐 DELETE: $url');
     
     try {
-      final response = await http.delete(
-        Uri.parse(url),
-        headers: await headers,
-      );
+      final request = http.Request('DELETE', Uri.parse(url));
+      request.headers.addAll(await headers);
+      
+      if (body != null) {
+        request.body = jsonEncode(body);
+      }
+      
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      
       print('📥 Response: ${response.statusCode}');
       return response;
     } catch (e) {

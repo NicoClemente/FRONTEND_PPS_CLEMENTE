@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/widgets/drawer_menu.dart';
-import 'package:flutter_app/widgets/custom_app_bar.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -8,13 +7,11 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(title: 'FlixFinder'),
-      /*appBar: AppBar(
-        title: const Text('Home Screen'),
+      appBar: AppBar(
+        title: const Text('FlixFinder'),
         centerTitle: true,
-        leadingWidth: 40,
-        toolbarHeight: 60,
-      ),*/
+        automaticallyImplyLeading: true, // Muestra el icono del drawer
+      ),
       drawer: DrawerMenu(),
       body: Stack(
         children: [
@@ -26,16 +23,7 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           // Contenido superpuesto
-          const Center(
-              /*child: Text(
-              'Welcome to FlixFinder',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),*/
-              ),
+          const Center(),
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,

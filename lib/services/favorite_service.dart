@@ -6,7 +6,7 @@ class Favorite {
   final int? id;
   final int userId;
   final String itemType; // 'movie', 'series', 'actor'
-  final String itemId; // ← CAMBIO: String en vez de int
+  final String itemId;
   final String? tmdbId;
   final String? createdAt;
   final dynamic details; // Detalles del item cuando se usa /detailed
@@ -25,7 +25,7 @@ class Favorite {
     id: json['id'],
     userId: json['user_id'],
     itemType: json['item_type'],
-    itemId: json['item_id'].toString(), // Asegurar que sea String
+    itemId: json['item_id'].toString(),
     tmdbId: json['tmdb_id']?.toString(),
     createdAt: json['created_at'],
     details: json['details'],
@@ -153,12 +153,21 @@ class FavoriteService {
     }
   }
 
-  /// Eliminar un favorito por ID
-  Future<void> deleteFavorite(int favoriteId) async {
+  /// Eliminar un favorito
+  Future<void> deleteFavorite({int? id, String? itemType, String? itemId}) async {
     try {
-      final body = {'id': favoriteId};
+      final body = <String, dynamic>{};
       
-      final response = await ApiService.delete('/favorites');
+      if (id != null) {
+        body['id'] = id;
+      } else if (itemType != null && itemId != null) {
+        body['item_type'] = itemType;
+        body['item_id'] = itemId;
+      } else {
+        throw Exception('Proporciona id o (item_type + item_id)');
+      }
+
+      final response = await ApiService.delete('/favorites', body: body);
 
       if (response.statusCode == 200) {
         return;
@@ -170,19 +179,5 @@ class FavoriteService {
       print('❌ Error en deleteFavorite: $e');
       rethrow;
     }
-  }
-
-  /// Agregar un elemento a favoritos (usa toggleFavorite en su lugar)
-  @Deprecated('Usa toggleFavorite() en su lugar')
-  Future<Map<String, dynamic>> addFavorite({
-    required String itemType,
-    required String itemId,
-    String? tmdbId,
-  }) async {
-    return toggleFavorite(
-      itemType: itemType,
-      itemId: itemId,
-      tmdbId: tmdbId,
-    );
   }
 }
