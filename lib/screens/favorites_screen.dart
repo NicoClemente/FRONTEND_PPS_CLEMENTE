@@ -41,7 +41,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       }
 
       final user = await _authService.getProfile();
-      final favorites = await _favoriteService.getUserFavoritesDetailed(user.id);
+      final favorites = await _favoriteService.getUserFavoritesDetailed();
 
       if (mounted) {
         setState(() {

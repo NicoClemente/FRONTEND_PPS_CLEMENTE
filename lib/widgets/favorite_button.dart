@@ -41,11 +41,9 @@ class _FavoriteButtonState extends State<FavoriteButton> {
         return;
       }
 
-      final user = await _authService.getProfile();
-      final isFav = await _favoriteService.isFavorite(
-        userId: user.id,
+      final isFav = await _favoriteService.checkFavorite(
         itemType: widget.itemType,
-        itemId: int.parse(widget.itemId),
+        itemId: widget.itemId,
       );
 
       if (mounted) {
@@ -83,17 +81,19 @@ class _FavoriteButtonState extends State<FavoriteButton> {
     setState(() => _isProcessing = true);
 
     try {
-      final user = await _authService.getProfile();
+      print('🔄 Toggling favorito: ${widget.itemType} ${widget.itemId}');
+      
       final result = await _favoriteService.toggleFavorite(
-        userId: user.id,
         itemType: widget.itemType,
-        itemId: int.parse(widget.itemId),
+        itemId: widget.itemId,
         tmdbId: widget.tmdbId,
       );
 
+      print('✅ Resultado: ${result['isFavorite']}');
+
       if (mounted) {
         setState(() {
-          _isFavorite = result['isFavorite'];
+          _isFavorite = result['isFavorite'] ?? false;
           _isProcessing = false;
         });
 
@@ -110,6 +110,8 @@ class _FavoriteButtonState extends State<FavoriteButton> {
         );
       }
     } catch (e) {
+      print('❌ Error al toggle: $e');
+      
       if (mounted) {
         setState(() => _isProcessing = false);
         
