@@ -1,16 +1,14 @@
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 class ApiService {
   static String get baseUrl {
     String url = dotenv.env['RENDER_URL'] ?? '';
-    
-    // Agregar https:// si no está presente
     if (!url.startsWith('http')) {
       url = 'https://$url';
     }
-    
     return url;
   }
 
@@ -22,28 +20,48 @@ class ApiService {
     return key;
   }
 
-  static Map<String, String> get headers => {
+  static Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('jwt_token');
+  }
+
+  static Future<void> saveToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('jwt_token', token);
+  }
+
+  static Future<void> removeToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('jwt_token');
+  }
+
+  static Future<Map<String, String>> get headers async {
+    final token = await getToken();
+    return {
+      'Content-Type': 'application/json',
+      'X-API-KEY': apiKey,
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
+  }
+
+  static Map<String, String> get publicHeaders => {
     'Content-Type': 'application/json',
     'X-API-KEY': apiKey,
   };
 
-  // Manejo de errores HTTP
   static void handleHttpError(http.Response response) {
     if (response.statusCode >= 400) {
       String errorMessage;
-      
       try {
         final errorData = jsonDecode(response.body);
-        errorMessage = errorData['error'] ?? errorData['message'] ?? 'Error desconocido';
+        errorMessage = errorData['msg'] ?? errorData['error'] ?? 'Error desconocido';
       } catch (e) {
         errorMessage = 'Error ${response.statusCode}: ${response.reasonPhrase}';
       }
-      
       throw Exception(errorMessage);
     }
   }
 
-  // GET
   static Future<http.Response> get(String endpoint) async {
     final url = '$baseUrl$endpoint';
     print('🌐 GET: $url');
@@ -51,7 +69,7 @@ class ApiService {
     try {
       final response = await http.get(
         Uri.parse(url),
-        headers: headers,
+        headers: await headers,
       );
       print('📥 Response: ${response.statusCode}');
       return response;
@@ -61,7 +79,6 @@ class ApiService {
     }
   }
 
-  // POST
   static Future<http.Response> post(String endpoint, dynamic body) async {
     final url = '$baseUrl$endpoint';
     print('🌐 POST: $url');
@@ -69,7 +86,7 @@ class ApiService {
     try {
       final response = await http.post(
         Uri.parse(url),
-        headers: headers,
+        headers: await headers,
         body: jsonEncode(body),
       );
       print('📥 Response: ${response.statusCode}');
@@ -80,7 +97,6 @@ class ApiService {
     }
   }
 
-  // PUT
   static Future<http.Response> put(String endpoint, dynamic body) async {
     final url = '$baseUrl$endpoint';
     print('🌐 PUT: $url');
@@ -88,7 +104,7 @@ class ApiService {
     try {
       final response = await http.put(
         Uri.parse(url),
-        headers: headers,
+        headers: await headers,
         body: jsonEncode(body),
       );
       print('📥 Response: ${response.statusCode}');
@@ -99,7 +115,6 @@ class ApiService {
     }
   }
 
-  // DELETE
   static Future<http.Response> delete(String endpoint) async {
     final url = '$baseUrl$endpoint';
     print('🌐 DELETE: $url');
@@ -107,7 +122,7 @@ class ApiService {
     try {
       final response = await http.delete(
         Uri.parse(url),
-        headers: headers,
+        headers: await headers,
       );
       print('📥 Response: ${response.statusCode}');
       return response;

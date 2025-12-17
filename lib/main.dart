@@ -4,6 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:flutter_app/screens/screens.dart';
 import 'package:flutter_app/providers/theme_provider.dart';
 import 'package:flutter_app/helpers/preferences.dart';
+import 'package:flutter_app/screens/auth/login_screen.dart';
+import 'package:flutter_app/screens/auth/register_screen.dart';
+import 'package:flutter_app/screens/favorites_screen.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
@@ -25,17 +28,32 @@ class MyApp extends StatelessWidget {
         builder: (context, themeProvider, _) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
-            title: 'Flutter App',
+            title: 'FlixFinder',
             theme: themeProvider.temaActual,
-            initialRoute: 'home',
+            initialRoute: 'login',
             routes: {
+              // Auth routes
+              'login': (context) => const LoginScreen(),
+              'register': (context) => const RegisterScreen(),
+              
+              // Main routes
               'home': (context) => const HomeScreen(),
               'profile': (context) => const ProfileScreen(),
+              
+              // Content routes
               'actors': (context) => const ActorsListScreen(),
               'actor_details': (context) => const ActorDetailsScreen(),
+              
+              // Series routes (AGREGADO)
               'series': (context) => const SeriesScreen(),
+              'series_detail': (context) => const SeriesDetailScreen(),
+              
+              // Movies routes
               'movies': (context) => const MoviesListScreen(),
               'movie_details': (context) => const MovieDetailsScreen(),
+              
+              // Favorites route
+              'favorites': (context) => const FavoritesScreen(),
             },
           );
         },

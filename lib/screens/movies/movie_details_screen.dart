@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/widgets/custom_app_bar.dart';
 import 'package:flutter_app/services/movie_service.dart';
+import '../../widgets/favorite_button.dart';
 
 class MovieDetailsScreen extends StatefulWidget {
   const MovieDetailsScreen({super.key});
@@ -11,7 +12,7 @@ class MovieDetailsScreen extends StatefulWidget {
 
 class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   final _formKey = GlobalKey<FormState>();
-  bool _isFavorite = false;
+  
   late TextEditingController _commentController;
 
   @override
@@ -70,30 +71,57 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   }
 
   Widget _buildMovieHeader(Map<String, dynamic> movie) {
-    // Generamos un tag único, usando el key si existe, o un timestamp si no
-    final heroTag = 'movie-${movie['key'] ?? DateTime.now().toString()}';
+  final heroTag = 'movie-${movie['key'] ?? DateTime.now().toString()}';
 
-    return Hero(
-      tag: heroTag,
-      child: Container(
-        constraints: const BoxConstraints(maxHeight: 500),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(15),
-          child: Center(
-            child: movie['posterPath'] != null
-                ? Image.network(
-                    movie['posterPath'],
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return _buildPlaceholder();
-                    },
-                  )
-                : _buildPlaceholder(),
+  return Stack(
+    children: [
+      Hero(
+        tag: heroTag,
+        child: Container(
+          constraints: const BoxConstraints(maxHeight: 500),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(15),
+            child: Center(
+              child: movie['posterPath'] != null
+                  ? Image.network(
+                      movie['posterPath'],
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return _buildPlaceholder();
+                      },
+                    )
+                  : _buildPlaceholder(),
+            ),
           ),
         ),
       ),
-    );
-  }
+      
+      Positioned(
+        top: 16,
+        right: 16,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: FavoriteButton(
+            itemType: 'movie',
+            itemId: movie['key']?.replaceAll('/movies/', '') ?? '',
+            tmdbId: movie['key']?.replaceAll('/movies/', ''),
+            size: 32,
+          ),
+        ),
+      ),
+    ],
+  );
+}
 
   Widget _buildPlaceholder() {
     return Container(
@@ -189,19 +217,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
               return null;
             },
           ),
-          const SizedBox(height: 16),
-          SwitchListTile(
-            title: const Text('Marcar como favorita'),
-            subtitle: Text(_isFavorite
-                ? 'Esta película está en tus favoritos'
-                : 'Agrega esta película a tus favoritos'),
-            value: _isFavorite,
-            onChanged: (bool value) {
-              setState(() {
-                _isFavorite = value;
-              });
-            },
-          ),
+          const SizedBox(height: 16),          
           const SizedBox(height: 24),
           Center(
             child: ElevatedButton.icon(

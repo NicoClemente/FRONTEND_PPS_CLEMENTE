@@ -148,7 +148,7 @@ class FavoriteService {
       final url = Uri.parse('${ApiService.baseUrl}/favorites/remove');
       final response = await http.delete(
         url,
-        headers: ApiService.headers,
+        headers: await ApiService.headers,
         body: jsonEncode(body),
       );
 
@@ -174,6 +174,31 @@ class FavoriteService {
     } catch (e) {
       print('❌ Error en isFavorite: $e');
       return false;
+    }
+  }
+
+  /// Alternar favorito (agregar o quitar)
+  Future<Map<String, dynamic>> toggleFavorite({
+    required int userId,
+    required String itemType,
+    required int itemId,
+    String? tmdbId,
+  }) async {
+    try {
+      final isFav = await isFavorite(userId: userId, itemType: itemType, itemId: itemId);
+      
+      if (isFav) {
+        // Quitar de favoritos
+        await removeFavorite(userId: userId, itemType: itemType, itemId: itemId);
+        return {'isFavorite': false};
+      } else {
+        // Agregar a favoritos
+        await addFavorite(userId: userId, itemType: itemType, itemId: itemId);
+        return {'isFavorite': true};
+      }
+    } catch (e) {
+      print('❌ Error en toggleFavorite: $e');
+      throw Exception('Error al alternar favorito: $e');
     }
   }
 }

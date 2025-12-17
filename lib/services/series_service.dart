@@ -24,7 +24,7 @@ class SeriesService {
       }
       
       ApiService.handleHttpError(response);
-      throw Exception("Error al cargar series: ${response.statusCode} - ${response.reasonPhrase}");
+      throw Exception("Error al cargar series: ${response.statusCode}");
     } catch (e) {
       print('❌ Error en obtenerSeries: $e');
       throw Exception("Error de conexión: $e");
@@ -53,7 +53,7 @@ class SeriesService {
       }
       
       ApiService.handleHttpError(response);
-      throw Exception("Error al buscar series: ${response.statusCode} - ${response.reasonPhrase}");
+      throw Exception("Error al buscar series: ${response.statusCode}");
     } catch (e) {
       print('❌ Error en buscarSeries: $e');
       throw Exception("Error de conexión: $e");
@@ -97,5 +97,23 @@ class SeriesService {
       print('❌ Error en getSeriesByGenre: $e');
       throw Exception("Error de conexión: $e");
     }
+  }
+
+  /// Obtener géneros disponibles
+  static Future<List<String>> getGenres() async {
+    // Por ahora retornamos géneros fijos
+    // Podrías implementar un endpoint en el backend para obtener géneros dinámicos
+    return [
+      'Drama',
+      'Comedy',
+      'Action',
+      'Thriller',
+      'Science-Fiction',
+      'Horror',
+      'Romance',
+      'Crime',
+      'Fantasy',
+      'Mystery',
+    ];
   }
 }
