@@ -6,7 +6,7 @@ import 'package:flutter_app/providers/theme_provider.dart';
 import 'package:flutter_app/helpers/preferences.dart';
 import 'package:flutter_app/screens/auth/login_screen.dart';
 import 'package:flutter_app/screens/auth/register_screen.dart';
-import 'package:flutter_app/screens/favorites_screen.dart';
+import 'package:flutter_app/screens/favorites_and_reviews_screen.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
@@ -53,7 +53,7 @@ class MyApp extends StatelessWidget {
               'movie_details': (context) => const MovieDetailsScreen(),
               
               // Favorites route
-              'favorites': (context) => const FavoritesScreen(),
+               'favorites': (context) => const FavoritesAndReviewsScreen(),
             },
           );
         },

@@ -10,4 +10,4 @@ export '/screens/actors/actor_search_delegate.dart';
 export '/screens/actors/actor_search_results_screen.dart';
 export '/screens/auth/login_screen.dart';
 export '/screens/auth/register_screen.dart';
-export '/screens/favorites_screen.dart';
+export '/screens/favorites_and_reviews_screen.dart';
