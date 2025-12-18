@@ -514,7 +514,9 @@ class _FavoritesAndReviewsScreenState extends State<FavoritesAndReviewsScreen> w
           };
         }
       } else if (review.itemType == 'series') {
-        tmdbData = await _tmdbService.getSeriesDetails(review.tmdbId ?? review.itemId);
+        final idToUse = review.tmdbId ?? review.itemId;
+        print('Obteniendo detalles de serie para review: itemId=${review.itemId}, tmdbId=${review.tmdbId}, usando ID=$idToUse');
+        tmdbData = await _tmdbService.getSeriesDetails(idToUse);
         if (tmdbData != null) {
           String? imageUrl = tmdbData['poster_path'];
           if (imageUrl != null && !imageUrl.startsWith('http')) {
@@ -523,7 +525,7 @@ class _FavoritesAndReviewsScreenState extends State<FavoritesAndReviewsScreen> w
           return {
             'title': tmdbData['name'],
             'imageUrl': imageUrl,
-            'tmdbData': tmdbData, // 🟢 AGREGAR ESTA LÍNEA
+            'tmdbData': tmdbData, 
           };
         }
       }

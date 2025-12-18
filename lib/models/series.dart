@@ -13,7 +13,7 @@ class Series {
   String summary;
   String network;
   String imageUrl;
-
+  String? tmdbId; 
   Series({
     required this.id,
     required this.name,
@@ -23,17 +23,19 @@ class Series {
     required this.summary,
     required this.network,
     required this.imageUrl,
+    this.tmdbId,
   });
 
   factory Series.fromJson(Map<String, dynamic> json) => Series(
     id: json["id"].toString(),
     name: json["name"],
-    genres: List<String>.from(json["genres"].map((x) => x)),
-    premiered: json["premiered"],
-    status: json["status"],
-    summary: json["summary"],
-    network: json["network"],
-    imageUrl: json["imageUrl"],
+    genres: List<String>.from(json["genres"].map((x) => x.toString())),
+    premiered: json["first_air_date"] ?? '',
+    status: '', // Not in JSON
+    summary: json["overview"] ?? '',
+    network: '', // Not in JSON
+    imageUrl: json["poster_path"] != null ? 'https://image.tmdb.org/t/p/w500${json["poster_path"]}' : '',
+    tmdbId: json["id"].toString(), 
   );
 
   Map<String, dynamic> toJson() => {
@@ -45,5 +47,6 @@ class Series {
     "summary": summary,
     "network": network,
     "imageUrl": imageUrl,
+    "tmdb_id": tmdbId,
   };
-}
+}  

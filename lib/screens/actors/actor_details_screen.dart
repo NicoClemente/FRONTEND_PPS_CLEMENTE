@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/actor_model.dart';
 import '../../widgets/actors_widgets/expandable_text.dart';
 import '../../widgets/favorite_button.dart';
+import '../../services/reviews_service.dart';
 
 class ActorDetailsScreen extends StatefulWidget {
   const ActorDetailsScreen({super.key});
@@ -14,6 +15,7 @@ class _ActorDetailsScreenState extends State<ActorDetailsScreen> {
   final _formKey = GlobalKey<FormState>();  
   late TextEditingController _commentController;
   late Actor actor;
+  final ReviewService _reviewService = ReviewService();
 
   @override
   void didChangeDependencies() {
@@ -75,7 +77,7 @@ class _ActorDetailsScreenState extends State<ActorDetailsScreen> {
         const SizedBox(height: 16),
         _buildActorInfo(context),
         const SizedBox(height: 24),
-        _buildReviewForm(),
+        // _buildReviewForm(),
       ],
     );
   }
@@ -98,7 +100,7 @@ class _ActorDetailsScreenState extends State<ActorDetailsScreen> {
           ],
         ),
         const SizedBox(height: 24),
-        _buildReviewForm(),
+        // _buildReviewForm(),
       ],
     );
   }
@@ -219,66 +221,88 @@ class _ActorDetailsScreenState extends State<ActorDetailsScreen> {
     );
   }
 
-  Widget _buildReviewForm() {
-    return Form(
-      key: _formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '¿Qué opinas de este actor?',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 10),
-          TextFormField(
-            controller: _commentController,
-            decoration: const InputDecoration(
-              labelText: 'Escribe tu opinión sobre este actor...',
-              alignLabelWithHint: true,
-              border: OutlineInputBorder(),
-              hintText: 'Por ejemplo "Me emocionó su interpretación de X personaje!"',
-            ),
-            maxLines: 3,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Debes escribir algo para guardar tu valoración';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 16),          
-          const SizedBox(height: 24),
-          Center(
-            child: ElevatedButton.icon(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Se ha guardado tu valoración'),
-                      backgroundColor: Theme.of(context).primaryColor,
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  );
-                }
-              },
-              icon: const Icon(Icons.save),
-              label: const Text('Guardar valoración'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 16,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+//   Widget _buildReviewForm() {
+//     return Form(
+//       key: _formKey,
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Text(
+//             '¿Qué opinas de este actor?',
+//             style: Theme.of(context).textTheme.titleLarge,
+//           ),
+//           const SizedBox(height: 10),
+//           TextFormField(
+//             controller: _commentController,
+//             decoration: const InputDecoration(
+//               labelText: 'Escribe tu opinión sobre este actor...',
+//               alignLabelWithHint: true,
+//               border: OutlineInputBorder(),
+//               hintText: 'Por ejemplo "Me emocionó su interpretación de X personaje!"',
+//             ),
+//             maxLines: 3,
+//             validator: (value) {
+//               if (value == null || value.isEmpty) {
+//                 return 'Debes escribir algo para guardar tu valoración';
+//               }
+//               return null;
+//             },
+//           ),
+//           const SizedBox(height: 16),          
+//           const SizedBox(height: 24),
+//           Center(
+//             child: ElevatedButton.icon(
+//               onPressed: () async {
+//                 if (_formKey.currentState!.validate()) {
+//                   try {
+//                     await _reviewService.createOrUpdateReview(
+//                       itemType: 'actor',
+//                       itemId: actor.id.toString(),
+//                       tmdbId: actor.tmdbId ?? actor.id.toString(),
+//                       reviewText: _commentController.text,
+//                     );
+                    
+//                     ScaffoldMessenger.of(context).showSnackBar(
+//                       SnackBar(
+//                         content: const Text('Se ha guardado tu valoración'),
+//                         backgroundColor: Theme.of(context).primaryColor,
+//                         behavior: SnackBarBehavior.floating,
+//                         shape: RoundedRectangleBorder(
+//                           borderRadius: BorderRadius.circular(10),
+//                         ),
+//                       ),
+//                     );
+//                     _commentController.clear();
+//                   } catch (e) {
+//                     ScaffoldMessenger.of(context).showSnackBar(
+//                       SnackBar(
+//                         content: Text('Error al guardar valoración: $e'),
+//                         backgroundColor: Colors.red,
+//                         behavior: SnackBarBehavior.floating,
+//                         shape: RoundedRectangleBorder(
+//                           borderRadius: BorderRadius.circular(10),
+//                         ),
+//                       ),
+//                     );
+//                   }
+//                 }
+//               },
+//               icon: const Icon(Icons.save),
+//               label: const Text('Guardar valoración'),
+//               style: ElevatedButton.styleFrom(
+//                 padding: const EdgeInsets.symmetric(
+//                   horizontal: 32,
+//                   vertical: 16,
+//                 ),
+//                 shape: RoundedRectangleBorder(
+//                   borderRadius: BorderRadius.circular(10),
+//                 ),
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
 }

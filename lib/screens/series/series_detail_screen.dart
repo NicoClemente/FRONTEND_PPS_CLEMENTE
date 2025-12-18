@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/favorite_button.dart';
 import '../../models/series.dart';
+import '../../services/reviews_service.dart';
 
 class SeriesDetailScreen extends StatefulWidget {
   const SeriesDetailScreen({super.key});
@@ -13,6 +14,7 @@ class SeriesDetailScreen extends StatefulWidget {
 class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _commentController;
+  final ReviewService _reviewService = ReviewService();
 
   @override
   void initState() {
@@ -311,19 +313,60 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
           const SizedBox(height: 24),
           Center(
             child: ElevatedButton.icon(
-              onPressed: () {
+              onPressed: () async {
                 if (_formKey.currentState!.validate()) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('¡Reseña guardada con éxito!'),
-                      backgroundColor: Theme.of(context).primaryColor,
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                  // Extraer seriesId aquí
+                  final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+                  final Series? series = args['series'];
+                  String? seriesId;
+                  String? tmdbId;
+                  if (series != null) {
+                    seriesId = series.id;
+                    tmdbId = series.tmdbId ?? series.id;
+                  } else {
+                    seriesId = args['seriesId']?.toString();
+                    tmdbId = seriesId; // Asumir que es TMDB ID
+                  }
+                  
+                  if (seriesId == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Error: No se pudo identificar la serie')),
+                    );
+                    return;
+                  }
+
+                  try {
+                    print('Guardando review de serie: itemId=$seriesId, tmdbId=$tmdbId');
+                    await _reviewService.createOrUpdateReview(
+                      itemType: 'series',
+                      itemId: seriesId,
+                      tmdbId: tmdbId,
+                      reviewText: _commentController.text,
+                    );
+                    
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('¡Reseña guardada con éxito!'),
+                        backgroundColor: Theme.of(context).primaryColor,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
-                    ),
-                  );
-                  _commentController.clear();
+                    );
+                    _commentController.clear();
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Error al guardar reseña: $e'),
+                        backgroundColor: Colors.red,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    );
+                  }
                 }
               },
               icon: const Icon(Icons.save),

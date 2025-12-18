@@ -5,6 +5,7 @@
   final double popularity;
   final String? profileImage;
   final String? biography;
+  final String? tmdbId; // 🟢 AGREGAR ESTE CAMPO
 
   Actor({
     required this.id,
@@ -13,6 +14,7 @@
     required this.popularity,
     this.profileImage,
     this.biography,
+    this.tmdbId,
   });
 
   factory Actor.fromJson(Map<String, dynamic> json) => Actor(
@@ -22,6 +24,7 @@
     popularity: json["popularity"]?.toDouble() ?? 0.0,
     profileImage: json["profileImage"],
     biography: json["biography"],
+    tmdbId: json["tmdb_id"]?.toString(), // 🟢 AGREGAR ESTE CAMPO
   );
 
   Map<String, dynamic> toJson() => {
@@ -31,5 +34,6 @@
     "popularity": popularity,
     "profileImage": profileImage,
     "biography": biography,
+    "tmdb_id": tmdbId, // 🟢 AGREGAR ESTE CAMPO
   };
 }
