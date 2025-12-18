@@ -119,7 +119,6 @@ class _MoviesListScreenState extends State<MoviesListScreen> {
         return Wrap(
           spacing: 8,
           runSpacing: 8,
-          alignment: WrapAlignment.start,
           children: [
             _buildFilterChip('Todos', null),
             ...snapshot.data!.map((genre) => _buildFilterChip(genre, genre)),
