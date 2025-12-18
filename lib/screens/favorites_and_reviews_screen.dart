@@ -297,7 +297,7 @@ class _FavoritesAndReviewsScreenState extends State<FavoritesAndReviewsScreen> w
       elevation: 2,
       margin: const EdgeInsets.only(bottom: 16),
       child: InkWell(
-        onTap: () => _navigateToDetails(favorite),
+        onTap: () => _navigateToDetails(favorite, tmdbData),
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(
@@ -368,17 +368,20 @@ class _FavoritesAndReviewsScreenState extends State<FavoritesAndReviewsScreen> w
     );
   }
  
+  // 🟢 CAMBIO 1: Agregar tmdbData en el FutureBuilder
   Widget _buildReviewCard(Review review) {  
-  return FutureBuilder<Map<String, dynamic>?>(
+    return FutureBuilder<Map<String, dynamic>?>(
       future: _getReviewDetails(review),
       builder: (context, snapshot) {
         String title = 'Cargando...';
         String? imageUrl;
+        Map<String, dynamic>? tmdbData; // 🟢 AGREGAR ESTA LÍNEA
         
         if (snapshot.hasData && snapshot.data != null) {
           final data = snapshot.data!;
           title = data['title'] ?? 'Sin título';
           imageUrl = data['imageUrl'];
+          tmdbData = data['tmdbData']; // 🟢 AGREGAR ESTA LÍNEA
         } else if (snapshot.hasError) {
           title = 'Error al cargar';
         }
@@ -386,90 +389,105 @@ class _FavoritesAndReviewsScreenState extends State<FavoritesAndReviewsScreen> w
         return Card(
           elevation: 2,
           margin: const EdgeInsets.only(bottom: 16),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Imagen
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: snapshot.connectionState == ConnectionState.waiting
-                      ? Container(
-                          width: 60,
-                          height: 90,
-                          color: Colors.grey[300],
-                          child: const Center(
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                        )
-                      : imageUrl != null
-                          ? Image.network(
-                              imageUrl,
-                              width: 60,
-                              height: 90,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => _buildPlaceholderImage(review.itemType),
-                            )
-                          : _buildPlaceholderImage(review.itemType),
-                ),
-                const SizedBox(width: 12),
-                // Contenido
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          _buildTypeChip(review.itemType),
-                          const Spacer(),
-                          if (review.rating != null)
-                            Row(
-                              children: [
-                                const Icon(Icons.star, color: Colors.amber, size: 20),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${review.rating}/10',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
+          // 🟢 CAMBIO 2: Agregar InkWell para hacer el card clickeable
+          child: InkWell(
+            onTap: tmdbData != null 
+                ? () {
+                    // Crear un Favorite temporal para reutilizar _navigateToDetails
+                    final tempFavorite = Favorite(
+                      userId: review.userId,
+                      itemType: review.itemType,
+                      itemId: review.itemId,
+                      tmdbId: review.tmdbId,
+                    );
+                    _navigateToDetails(tempFavorite, tmdbData);
+                  }
+                : null,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Imagen
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: snapshot.connectionState == ConnectionState.waiting
+                        ? Container(
+                            width: 60,
+                            height: 90,
+                            color: Colors.grey[300],
+                            child: const Center(
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             ),
-                        ],
-                      ),
-                      if (review.reviewText != null && review.reviewText!.isNotEmpty) ...[
-                        const SizedBox(height: 12),
+                          )
+                        : imageUrl != null
+                            ? Image.network(
+                                imageUrl,
+                                width: 60,
+                                height: 90,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => _buildPlaceholderImage(review.itemType),
+                              )
+                            : _buildPlaceholderImage(review.itemType),
+                  ),
+                  const SizedBox(width: 12),
+                  // Contenido
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Text(
-                          review.reviewText!,
-                          style: const TextStyle(fontSize: 14),
-                          maxLines: 3,
+                          title,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                      ],
-                      const SizedBox(height: 8),
-                      Text(
-                        'Actualizado: ${_formatDate(review.updatedAt)}',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 12,
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            _buildTypeChip(review.itemType),
+                            const Spacer(),
+                            if (review.rating != null)
+                              Row(
+                                children: [
+                                  const Icon(Icons.star, color: Colors.amber, size: 20),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${review.rating}/10',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                          ],
                         ),
-                      ),
-                    ],
+                        if (review.reviewText != null && review.reviewText!.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          Text(
+                            review.reviewText!,
+                            style: const TextStyle(fontSize: 14),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                        const SizedBox(height: 8),
+                        Text(
+                          'Actualizado: ${_formatDate(review.updatedAt)}',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
@@ -477,7 +495,7 @@ class _FavoritesAndReviewsScreenState extends State<FavoritesAndReviewsScreen> w
     );
   }
 
-  // Helper para obtener detalles de la review
+  // 🟢 CAMBIO 3: Agregar tmdbData en el return
   Future<Map<String, dynamic>?> _getReviewDetails(Review review) async {
     try {
       Map<String, dynamic>? tmdbData;
@@ -492,6 +510,7 @@ class _FavoritesAndReviewsScreenState extends State<FavoritesAndReviewsScreen> w
           return {
             'title': tmdbData['title'],
             'imageUrl': imageUrl,
+            'tmdbData': tmdbData, // 🟢 AGREGAR ESTA LÍNEA
           };
         }
       } else if (review.itemType == 'series') {
@@ -504,6 +523,7 @@ class _FavoritesAndReviewsScreenState extends State<FavoritesAndReviewsScreen> w
           return {
             'title': tmdbData['name'],
             'imageUrl': imageUrl,
+            'tmdbData': tmdbData, // 🟢 AGREGAR ESTA LÍNEA
           };
         }
       }
@@ -672,25 +692,69 @@ class _FavoritesAndReviewsScreenState extends State<FavoritesAndReviewsScreen> w
     );
   }
 
-  void _navigateToDetails(Favorite favorite) {
+  void _navigateToDetails(Favorite favorite, Map<String, dynamic>? tmdbData) {
     String route;
-    Map<String, dynamic> args = {'id': favorite.itemId};
+    dynamic arguments;
 
     switch (favorite.itemType) {
       case 'movie':
         route = 'movie_details';
+        arguments = {
+          'key': '/movies/${favorite.tmdbId ?? favorite.itemId}',
+          'title': tmdbData?['title'] ?? 'Sin título',
+          'releaseDate': tmdbData?['release_date'] ?? '',
+          'overview': tmdbData?['overview'] ?? '',
+          'voteAverage': tmdbData?['vote_average'] ?? 0.0,
+          'genres': tmdbData?['genres'] != null 
+              ? (tmdbData!['genres'] as List).map((g) => g['id']).toList()
+              : [],
+          'posterPath': tmdbData?['poster_path'] != null
+              ? 'https://image.tmdb.org/t/p/w500${tmdbData!['poster_path']}'
+              : null,
+        };
         break;
+        
       case 'series':
         route = 'series_detail';
+        
+        // Extraer ID de múltiples fuentes como respaldo
+        String? extractedId = favorite.tmdbId ?? favorite.itemId;
+        if (tmdbData != null && tmdbData['id'] != null) {
+          extractedId = tmdbData['id'].toString();
+        }
+        
+        arguments = {
+          'imagePath': tmdbData?['poster_path'] != null
+              ? 'https://image.tmdb.org/t/p/w500${tmdbData!['poster_path']}'
+              : '',
+          'title': tmdbData?['name'] ?? 'Sin título',
+          'description': tmdbData?['overview'] ?? 'Sin descripción',
+          'series': null,
+          'seriesId': extractedId,
+        };
         break;
+        
       case 'actor':
         route = 'actor_details';
+        arguments = {
+          'id': int.tryParse(favorite.tmdbId ?? favorite.itemId) ?? 0,
+          'name': tmdbData?['name'] ?? 'Sin nombre',
+          'knownFor': tmdbData?['known_for_department'] != null 
+              ? [tmdbData!['known_for_department']]
+              : <String>[],
+          'popularity': tmdbData?['popularity'] ?? 0.0,
+          'profileImage': tmdbData?['profile_path'] != null
+              ? 'https://image.tmdb.org/t/p/w500${tmdbData!['profile_path']}'
+              : null,
+          'biography': tmdbData?['biography'],
+        };
         break;
+        
       default:
         return;
     }
 
-    Navigator.pushNamed(context, route, arguments: args);
+    Navigator.pushNamed(context, route, arguments: arguments);
   }
 
   String _formatDate(String? dateString) {

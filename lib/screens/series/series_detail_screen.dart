@@ -34,6 +34,21 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
     final String title = args['title'] ?? 'Sin título';
     final String description = args['description'] ?? 'Sin descripción';
     
+    // 🟢 EXTRAER EL ID de la serie (puede venir del objeto Series o de los argumentos)
+    String? seriesId;
+    if (series != null) {
+      seriesId = series.id;
+    } else {
+      // Desde favoritos viene como 'seriesId' en los argumentos
+      seriesId = args['seriesId']?.toString();
+    }
+    
+    // Debug: verificar qué se está recibiendo
+    print('🔍 DEBUG Series Detail:');
+    print('  - series: $series');
+    print('  - seriesId: $seriesId');
+    print('  - args: $args');
+    
     final size = MediaQuery.of(context).size;
     final isSmallScreen = size.width < 600;
 
@@ -46,7 +61,7 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (isSmallScreen) ...[
-                _buildSeriesHeader(imagePath, series),
+                _buildSeriesHeader(imagePath, series, seriesId),
                 const SizedBox(height: 16),
                 _buildSeriesInfo(title, description, series),
               ] else
@@ -55,7 +70,7 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
                   children: [
                     Expanded(
                       flex: 4,
-                      child: _buildSeriesHeader(imagePath, series),
+                      child: _buildSeriesHeader(imagePath, series, seriesId),
                     ),
                     const SizedBox(width: 24),
                     Expanded(
@@ -73,10 +88,11 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
     );
   }
 
-  Widget _buildSeriesHeader(String imagePath, Series? series) {
+  // 🟢 MODIFICADO: Ahora recibe seriesId explícitamente
+  Widget _buildSeriesHeader(String imagePath, Series? series, String? seriesId) {
     return Stack(
       children: [
-        // Imagen
+        // Imagen principal
         Hero(
           tag: series != null ? 'series-${series.id}' : 'series-$imagePath',
           child: Container(
@@ -96,11 +112,11 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
           ),
         ),
         
-        // Botón de favorito flotante
-        if (series != null)
+        // 🟢 BOTÓN DE FAVORITO - Ahora se muestra siempre que haya un seriesId
+        if (seriesId != null && seriesId.isNotEmpty)
           Positioned(
-            top: 16,
-            right: 16,
+            top: 8,
+            right: 8,
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -115,9 +131,9 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
               ),
               child: FavoriteButton(
                 itemType: 'series',
-                itemId: series.id,
-                tmdbId: series.id,
-                size: 32,
+                itemId: seriesId,
+                tmdbId: seriesId,
+                size: 28,
               ),
             ),
           ),

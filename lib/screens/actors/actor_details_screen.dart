@@ -18,7 +18,19 @@ class _ActorDetailsScreenState extends State<ActorDetailsScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    actor = ModalRoute.of(context)!.settings.arguments as Actor;
+    
+    // 🟢 SOPORTAR TANTO Actor COMO Map<String, dynamic>
+    final arguments = ModalRoute.of(context)!.settings.arguments;
+    
+    if (arguments is Actor) {
+      // Viene desde la lista de actores
+      actor = arguments;
+    } else if (arguments is Map<String, dynamic>) {
+      // Viene desde favoritos - convertir Map a Actor
+      actor = Actor.fromJson(arguments);
+    } else {
+      throw Exception('Argumentos inválidos para ActorDetailsScreen');
+    }
   }
 
   @override
@@ -92,64 +104,64 @@ class _ActorDetailsScreenState extends State<ActorDetailsScreen> {
   }
 
   Widget _buildActorHeader(BuildContext context) {
-  final screenWidth = MediaQuery.of(context).size.width;
-  final scaffoldBackgroundColor = Theme.of(context).scaffoldBackgroundColor;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final scaffoldBackgroundColor = Theme.of(context).scaffoldBackgroundColor;
 
-  return Stack(
-    children: [
-      Hero(
-        tag: 'actor-${actor.id}',
-        child: Center(
+    return Stack(
+      children: [
+        Hero(
+          tag: 'actor-${actor.id}',
+          child: Center(
+            child: Container(
+              width: screenWidth * 0.8,
+              height: screenWidth * 0.8,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                color: scaffoldBackgroundColor,
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: FadeInImage.assetNetwork(
+                  placeholder: 'assets/actors_assets/loading.gif',
+                  image: actor.profileImage ?? '',
+                  fit: BoxFit.cover,
+                  fadeInDuration: const Duration(seconds: 2),
+                  fadeOutDuration: const Duration(milliseconds: 500),
+                  imageErrorBuilder: (context, error, stackTrace) {
+                    return const Icon(Icons.person, size: 100, color: Colors.white54);
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+        
+        Positioned(
+          top: 16,
+          right: MediaQuery.of(context).size.width * 0.1 + 16,
           child: Container(
-            width: screenWidth * 0.8,
-            height: screenWidth * 0.8,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              color: scaffoldBackgroundColor,
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(15),
-              child: FadeInImage.assetNetwork(
-                placeholder: 'assets/actors_assets/loading.gif',
-                image: actor.profileImage ?? '',
-                fit: BoxFit.cover,
-                fadeInDuration: const Duration(seconds: 2),
-                fadeOutDuration: const Duration(milliseconds: 500),
-                imageErrorBuilder: (context, error, stackTrace) {
-                  return const Icon(Icons.person, size: 100, color: Colors.white54);
-                },
-              ),
+            child: FavoriteButton(
+              itemType: 'actor',
+              itemId: actor.id.toString(),
+              tmdbId: actor.id.toString(),
+              size: 32,
             ),
           ),
         ),
-      ),
-      
-      Positioned(
-        top: 16,
-        right: MediaQuery.of(context).size.width * 0.1 + 16,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.3),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: FavoriteButton(
-            itemType: 'actor',
-            itemId: actor.id.toString(),
-            tmdbId: actor.id.toString(),
-            size: 32,
-          ),
-        ),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 
   Widget _buildActorInfo(BuildContext context) {
     return Column(

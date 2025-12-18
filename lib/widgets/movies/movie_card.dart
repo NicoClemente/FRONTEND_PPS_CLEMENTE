@@ -15,7 +15,7 @@ class MovieCard extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final cardWidth = constraints.maxWidth;
-        final titleSize = cardWidth * 0.05;
+        final titleSize = cardWidth * 0.08;
         final subtitleSize = titleSize * 0.8;
 
         return Card(
