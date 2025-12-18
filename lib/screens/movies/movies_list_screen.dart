@@ -116,13 +116,24 @@ class _MoviesListScreenState extends State<MoviesListScreen> {
       builder: (context, snapshot) {
         if (!snapshot.hasData) return const SizedBox();
 
-        return Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            _buildFilterChip('Todos', null),
-            ...snapshot.data!.map((genre) => _buildFilterChip(genre, genre)),
-          ],
+        final genres = ['Todos', ...snapshot.data!];
+
+        return SizedBox(
+          height: 40,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: genres.length,
+            itemBuilder: (context, index) {
+              final genre = genres[index];
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: _buildFilterChip(
+                  genre,
+                  genre == 'Todos' ? null : genre,
+                ),
+              );
+            },
+          ),
         );
       },
     );
@@ -168,28 +179,29 @@ class _MoviesListScreenState extends State<MoviesListScreen> {
     final isSelected = _selectedGenre == genre;
     final theme = Theme.of(context);
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      child: FilterChip(
-        label: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : theme.textTheme.bodyLarge?.color,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          ),
+    return FilterChip(
+      label: Text(
+        label,
+        style: TextStyle(
+          color: isSelected ? Colors.white : theme.textTheme.bodyLarge?.color,
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
         ),
-        selected: isSelected,
-        onSelected: (_) => setState(() => _selectedGenre = genre),
-        backgroundColor: theme.colorScheme.surface,
-        selectedColor: theme.primaryColor,
-        elevation: isSelected ? 4 : 0,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(
-            color: isSelected ? Colors.transparent : theme.dividerColor,
-            width: 1,
-          ),
+      ),
+      selected: isSelected,
+      onSelected: (_) {
+        setState(() {
+          _selectedGenre = genre; // null = Todos
+        });
+      },
+      backgroundColor: theme.colorScheme.surface,
+      selectedColor: theme.primaryColor,
+      elevation: isSelected ? 4 : 0,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: isSelected ? Colors.transparent : theme.dividerColor,
+          width: 1,
         ),
       ),
     );
