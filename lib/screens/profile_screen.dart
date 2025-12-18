@@ -56,34 +56,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _handleLogout() async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Cerrar Sesión'),
-        content: const Text('¿Estás seguro que deseas cerrar sesión?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Cerrar Sesión'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm == true) {
-      await _authService.logout();
-      if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          'login',
-          (route) => false,
-        );
-      }
+    await _authService.logout();
+    if (mounted) {
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        'login',
+        (route) => false,
+      );
     }
   }
 

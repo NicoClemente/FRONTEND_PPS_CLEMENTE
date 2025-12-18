@@ -143,6 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             border: const OutlineInputBorder(),
                           ),
+                          onFieldSubmitted: (_) => _login(),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Ingresa tu contraseña';
