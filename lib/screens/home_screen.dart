@@ -19,19 +19,54 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Movie> _popularMovies = [];
   bool _isLoading = true;
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  bool _showLeftArrow = false;
+  bool _showRightArrow = true;
 
   @override
   void initState() {
     super.initState();
     _loadPopularMovies();
+    _scrollController.addListener(_updateArrows);
+  }
+
+  void _updateArrows() {
+    setState(() {
+      _showLeftArrow = _scrollController.offset > 0;
+      _showRightArrow = _scrollController.offset < 
+          _scrollController.position.maxScrollExtent - 10;
+    });
+  }
+
+  void _scrollLeft() {
+    _scrollController.animateTo(
+      _scrollController.offset - 400,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void _scrollRight() {
+    _scrollController.animateTo(
+      _scrollController.offset + 400,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 
   Future<void> _loadPopularMovies() async {
     try {
       final movies = await MovieService().getPopularMovies();
       setState(() {
-        _popularMovies = movies.take(10).toList(); // Show top 10
+        _popularMovies = movies.take(20).toList();
         _isLoading = false;
+      });
+      
+      // Actualizar flechas después de cargar
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _scrollController.hasClients) {
+          _updateArrows();
+        }
       });
     } catch (e) {
       setState(() {
@@ -98,8 +133,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   fillColor: Theme.of(context).cardColor,
                 ),
                 onSubmitted: (query) {
-                  // Navigate to search results or handle search
-                  // For now, just show a snackbar
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Buscar: $query')),
                   );
@@ -150,50 +183,119 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 10),
+              
+              // Movies Carousel with Arrows
               _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : _popularMovies.isEmpty
                       ? const Center(child: Text('No hay películas disponibles'))
-                      : SizedBox(
-                          height: 320,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: _popularMovies.length,
-                            itemBuilder: (context, index) {
-                              final movie = _popularMovies[index];
-                              return Container(
-                                width: 200,
-                                margin: const EdgeInsets.only(right: 10),
-                                child: MovieCard(
-                                  movie: {
-                                    'key': movie.key,
-                                    'posterPath': movie.posterPath,
-                                    'title': movie.title,
-                                    'overview': movie.overview,
-                                    'voteAverage': movie.voteAverage,
-                                    'releaseDate': movie.releaseDate,
-                                  },
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => const MovieDetailsScreen(),
-                                        settings: RouteSettings(arguments: {
-                                          'key': movie.key,
-                                          'posterPath': movie.posterPath,
-                                          'title': movie.title,
-                                          'overview': movie.overview,
-                                          'voteAverage': movie.voteAverage,
-                                          'releaseDate': movie.releaseDate,
-                                          'genres': movie.genres,
-                                        }),
+                      : Stack(
+                          children: [
+                            SizedBox(
+                              height: 320,
+                              child: ListView.builder(
+                                controller: _scrollController,
+                                scrollDirection: Axis.horizontal,
+                                itemCount: _popularMovies.length,
+                                itemBuilder: (context, index) {
+                                  final movie = _popularMovies[index];
+                                  return Container(
+                                    width: 200,
+                                    margin: const EdgeInsets.only(right: 10),
+                                    child: MovieCard(
+                                      movie: {
+                                        'key': movie.key,
+                                        'posterPath': movie.posterPath,
+                                        'title': movie.title,
+                                        'overview': movie.overview,
+                                        'voteAverage': movie.voteAverage,
+                                        'releaseDate': movie.releaseDate,
+                                      },
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => const MovieDetailsScreen(),
+                                            settings: RouteSettings(arguments: {
+                                              'key': movie.key,
+                                              'posterPath': movie.posterPath,
+                                              'title': movie.title,
+                                              'overview': movie.overview,
+                                              'voteAverage': movie.voteAverage,
+                                              'releaseDate': movie.releaseDate,
+                                              'genres': movie.genres,
+                                            }),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            
+                            // Left Arrow
+                            if (_showLeftArrow)
+                              Positioned(
+                                left: 0,
+                                top: 0,
+                                bottom: 0,
+                                child: Center(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(0.7),
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.3),
+                                          blurRadius: 8,
+                                          spreadRadius: 2,
+                                        ),
+                                      ],
+                                    ),
+                                    child: IconButton(
+                                      icon: const Icon(
+                                        Icons.chevron_left,
+                                        color: Colors.white,
+                                        size: 32,
                                       ),
-                                    );
-                                  },
+                                      onPressed: _scrollLeft,
+                                    ),
+                                  ),
                                 ),
-                              );
-                            },
-                          ),
+                              ),
+                            
+                            // Right Arrow
+                            if (_showRightArrow)
+                              Positioned(
+                                right: 0,
+                                top: 0,
+                                bottom: 0,
+                                child: Center(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(0.7),
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.3),
+                                          blurRadius: 8,
+                                          spreadRadius: 2,
+                                        ),
+                                      ],
+                                    ),
+                                    child: IconButton(
+                                      icon: const Icon(
+                                        Icons.chevron_right,
+                                        color: Colors.white,
+                                        size: 32,
+                                      ),
+                                      onPressed: _scrollRight,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
             ],
           ),
@@ -214,5 +316,12 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 }
